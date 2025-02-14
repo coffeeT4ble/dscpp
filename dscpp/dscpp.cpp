@@ -20,10 +20,10 @@ void connectToDB() {
 	std::cin >> pwd;
 }
 
-void createTemplateTables() {
+/*void createTemplateTables() {
 	query.clear();
 	query = "CREATE TABLE Members(id_mem INTEGER PRIMARY KEY, fname_mem NVARCHAR(50) NOT NULL);";
-}
+}*/
 void getTableNames() {
 	query.clear();
 	query = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES;";
