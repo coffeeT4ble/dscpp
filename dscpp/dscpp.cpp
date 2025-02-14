@@ -31,9 +31,8 @@ void ownQuery() {
 	std::cout << "Own Query:" << std::endl;
 	std::cin >> query;
 }
-void txtToDB() {
+void txtToDB(std::string filePath) {
 	query.clear();
-	std::string filePath = "txt/query.txt.txt";
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
 		std::cerr << "NAH" << std::endl;
@@ -115,7 +114,7 @@ int main()
 			}
 		}
 		else if (c == "txtQ") {
-			txtToDB();
+			txtToDB("txt/query.txt.txt");
 			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 			while (res.next()) {
 				std::cout << res.get<std::string>(0) << " "
