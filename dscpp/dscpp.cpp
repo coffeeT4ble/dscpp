@@ -93,7 +93,7 @@ int main()
 			}
 			else { std::cout << "\nerror\n"; }
 			while (1) {
-				std::cout << "[" << user << "@" << "dscpp" << "]$ ";
+				std::cout << "\n[" << user << "@" << "dscpp" << "]$ ";
 				std::cin >> c;
 				if (c == "allT") {
 					getTableNames();
