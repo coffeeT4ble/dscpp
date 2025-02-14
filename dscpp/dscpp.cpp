@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "libs/nanodbc/nanodbc.h"
 
 //std::string sName;
@@ -8,6 +9,7 @@ std::string user;
 std::string pwd;
 std::string jecnaServer = "193.85.203.188";
 std::string query;
+std::vector<std::string> tables;
 
 void connectToDB() {
 	std::cout << "Enter the database name: ";
@@ -28,8 +30,11 @@ void getTableNames() {
 }
 void ownQuery() {
 	query.clear();
+	std::string input;
 	std::cout << "Own Query:" << std::endl;
-	std::cin >> query;
+	std::cin >> input;
+	query = input;
+	std::cout << query;
 }
 void txtToDB(std::string filePath) {
 	query.clear();
@@ -43,6 +48,7 @@ void txtToDB(std::string filePath) {
 		std::cout << line << std::endl;
 		query += line;
 	}
+	std::cout << "Done, but make sure to check using allT" << std::endl;
 	file.close();
 }
 
@@ -78,67 +84,82 @@ int main()
 	}*/
 	std::cout << query << std::endl;
 	connectToDB();
-	try {
-		nanodbc::connection conn(NANODBC_TEXT("Driver={ODBC Driver 17 for SQL Server}; Server=" + jecnaServer + "; Database=" + db + "; UID=" + user + "; PWD=" + pwd));
-		if (conn.connected() == 1) {
-			std::cout << "connected\n";
-		}
-		else { std::cout << "error"; }
-		std::string c;
-		std::cin >> c;
-		if (c == "allT") {
-			getTableNames();
-			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
-			while (res.next()) {
-				std::cout << res.get<std::string>(0) << " "
-					<< res.get<std::string>(1) << " "
-					<< res.get<std::string>(2) << std::endl;
+	std::string c;
+	while (c != "exit") {
+		try {
+			nanodbc::connection conn(NANODBC_TEXT("Driver={ODBC Driver 17 for SQL Server}; Server=" + jecnaServer + "; Database=" + db + "; UID=" + user + "; PWD=" + pwd));
+			if (conn.connected() == 1) {
+				std::cout << "\nconnected\n";
+			}
+			else { std::cout << "\nerror\n"; }
+			while (1) {
+				std::cout << "[" << user << "@" << "dscpp" << "]$ ";
+				std::cin >> c;
+				if (c == "allT") {
+					getTableNames();
+					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
+					while (res.next()) {
+						std::cout << res.get<std::string>(0) << "\n "
+							<< res.get<std::string>(1) << "\n "
+							<< res.get<std::string>(2) << std::endl;
+						tables.push_back(res.get<std::string>(0));
+					}
+					break;
+				}
+				else if (c == "ownQ") {
+					ownQuery();
+					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
+					while (res.next()) {
+						std::cout << res.get<std::string>(0) << " "
+							<< res.get<std::string>(1) << " "
+							<< res.get<std::string>(2) << std::endl;
+					}
+					break;
+				}
+				else if (c == "txtQ") {
+					txtToDB("txt/query.txt.txt");
+					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
+					while (res.next()) {
+						std::cout << res.get<std::string>(0) << " "
+							<< res.get<std::string>(1) << " "
+							<< res.get<std::string>(2) << std::endl;
+					}
+					break;
+				}
+				else if (c == "template") {
+					txtToDB("txt/template.txt");
+					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
+					while (res.next()) {
+						std::cout << res.get<std::string>(0) << " "
+							<< res.get<std::string>(1) << " "
+							<< res.get<std::string>(2) << std::endl;
+					}
+					break;
+				}
+				else if (c == "exit") {
+					return 0;
+				}
+				else {
+					std::cout << "invalid command";
+					break;
+				}
 			}
 		}
-		else if (c == "createT") {
-			createTemplateTables();
-			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
-			while (res.next()) {
-				std::cout << res.get<std::string>(0) << " "
-					<< res.get<std::string>(1) << " "
-					<< res.get<std::string>(2) << std::endl;
-			}
+		catch (const nanodbc::database_error& e) {
+			std::cerr << "Database error: " << e.what() << "\n";
+			std::cerr << "SQL State: " << e.state() << "\n";
+			std::cerr << "Native Error Code: " << e.native() << "\n";
 		}
-		else if (c == "ownQ") {
-			ownQuery();
-			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
-			while (res.next()) {
-				std::cout << res.get<std::string>(0) << " "
-					<< res.get<std::string>(1) << " "
-					<< res.get<std::string>(2) << std::endl;
-			}
+		catch (const std::exception& e) {
+			std::cerr << "Standard exception: " << e.what() << "\n";
 		}
-		else if (c == "txtQ") {
-			txtToDB("txt/query.txt.txt");
-			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
-			while (res.next()) {
-				std::cout << res.get<std::string>(0) << " "
-					<< res.get<std::string>(1) << " "
-					<< res.get<std::string>(2) << std::endl;
-			}
-		}
-		else if (c == "exit") {
-			return 0;
-		}
-		else {
-			std::cout << "invalid command";
+		catch (...) {
+			std::cerr << "Unknown error occurred\n";
 		}
 	}
-	catch (const nanodbc::database_error& e) {
-		std::cerr << "Database error: " << e.what() << "\n";
-		std::cerr << "SQL State: " << e.state() << "\n";
-		std::cerr << "Native Error Code: " << e.native() << "\n";
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Standard exception: " << e.what() << "\n";
-	}
-	catch (...) {
-		std::cerr << "Unknown error occurred\n";
-	}
+	//use later for a clean writout for table names
+	//for (int i = 0; i < tables.size(); i++) {
+		//std::cout << tables[i] << std::endl;
+	//}
 }
 

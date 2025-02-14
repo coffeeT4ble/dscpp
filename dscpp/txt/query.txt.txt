@@ -1,1 +1,5 @@
-select * from zamestnanci;
+select * from Attendance;
+select * from Classes;
+select * from Members;
+select * from Memberships;
+select * from Trainers;
