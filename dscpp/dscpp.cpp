@@ -53,6 +53,7 @@ void txtToDB(std::string filePath) {
 	file.close();
 }
 void csvT(std::string filePath) {
+	query.clear();
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
 		std::cerr << "NAH" << std::endl;
@@ -92,6 +93,15 @@ void csvT(std::string filePath) {
 	query += ");";
 	std::cout << query;
 }
+void attrAlign() {
+	std::cout << "If this ends up being empty or seems like it has not been updated, run allT and then try again" << std::endl;
+	std::string tName;
+	std::vector<std::string> a;
+	query.clear();
+	std::cout << "Enter the table name: ";
+	std::cin >> tName;
+	query = "SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo." + tName + "')";
+}
 int main()
 {//ignore the testing code
 	//std::cout << "Enter the server name: ";
@@ -122,7 +132,7 @@ int main()
 	catch (const nanodbc::database_error& e) {
 		std::cout << "invalid something... figure it out";
 	}*/
-	csvT("csv/c.csv");
+	//csvT("csv/c.csv");
 	std::cout << query << std::endl;
 	connectToDB();
 	std::string c;
@@ -133,7 +143,6 @@ int main()
 				std::cout << "\nconnected\n";
 			}
 			else { std::cout << "\nerror\n"; }
-			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 			while (1) {
 				std::cout << "\n[" << user << "@" << "dscpp" << "]$ ";
 				std::cin >> c;
@@ -141,8 +150,8 @@ int main()
 					getTableNames();
 					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 					while (res.next()) {
-						std::cout << res.get<std::string>(0) << "\n "
-							<< res.get<std::string>(1) << "\n "
+						std::cout << res.get<std::string>(0) << " "
+							<< res.get<std::string>(1) << " "
 							<< res.get<std::string>(2) << std::endl;
 						tables.push_back(res.get<std::string>(0));
 					}
@@ -170,6 +179,16 @@ int main()
 				}
 				else if (c == "template") {
 					txtToDB("txt/template.txt");
+					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
+					while (res.next()) {
+						std::cout << res.get<std::string>(0) << " "
+							<< res.get<std::string>(1) << " "
+							<< res.get<std::string>(2) << std::endl;
+					}
+					break;
+				}
+				else if (c == "attr") {
+					attrAlign();
 					nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 					while (res.next()) {
 						std::cout << res.get<std::string>(0) << " "
