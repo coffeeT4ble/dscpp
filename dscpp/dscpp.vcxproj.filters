@@ -30,4 +30,7 @@
   <ItemGroup>
     <Text Include="query.txt.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="json\input.json" />
+  </ItemGroup>
 </Project>

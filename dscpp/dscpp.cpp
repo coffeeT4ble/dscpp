@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include "libs/nanodbc/nanodbc.h"
 
@@ -51,7 +52,46 @@ void txtToDB(std::string filePath) {
 	std::cout << "Done, but make sure to check using allT" << std::endl;
 	file.close();
 }
-
+void csvT(std::string filePath) {
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		std::cerr << "NAH" << std::endl;
+		return;
+	}
+	std::string line;
+	std::vector<std::vector<std::string>> data;
+	while (std::getline(file, line)) {
+		std::stringstream ss(line);
+		std::string attribute;
+		std::vector<std::string> lineData;
+		while (std::getline(ss, attribute, ',')) {
+			if (attribute == "autoI") {
+				attribute = "IDENTITY(1,1)";
+			}
+			lineData.push_back(attribute + " ");
+		}
+		data.push_back(lineData);
+	}
+	file.close();
+	std::cout << "CSV Data:" << std::endl;
+	for (const auto& lineData : data) {
+		for (const auto& attr : lineData) {
+			std::cout << attr << " ";
+		}
+		std::cout << std::endl;
+	}
+	query.clear();
+	std::string tableName;
+	std::cout << "Enter the table name: ";
+	std::cin >> tableName;
+	query = "CREATE TABLE " + tableName + "(";
+	for (int i = 0; i < data[0].size(); i++) {
+		query += data[0][i];
+		std::cout << " ";
+	}
+	query += ");";
+	std::cout << query;
+}
 int main()
 {//ignore the testing code
 	//std::cout << "Enter the server name: ";
@@ -82,6 +122,7 @@ int main()
 	catch (const nanodbc::database_error& e) {
 		std::cout << "invalid something... figure it out";
 	}*/
+	csvT("csv/c.csv");
 	std::cout << query << std::endl;
 	connectToDB();
 	std::string c;
@@ -92,6 +133,7 @@ int main()
 				std::cout << "\nconnected\n";
 			}
 			else { std::cout << "\nerror\n"; }
+			nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 			while (1) {
 				std::cout << "\n[" << user << "@" << "dscpp" << "]$ ";
 				std::cin >> c;
