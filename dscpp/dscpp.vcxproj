@@ -135,10 +135,14 @@
     <ClInclude Include="libs\nanodbc\nanodbc.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="query.txt.txt" />
+    <None Include="csv\c.csv" />
+    <None Include="csv\zamestnanci.csv" />
+    <None Include="json\input.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="json\input.json" />
+    <Text Include="txt\inserts.txt" />
+    <Text Include="txt\query.txt.txt" />
+    <Text Include="txt\template.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

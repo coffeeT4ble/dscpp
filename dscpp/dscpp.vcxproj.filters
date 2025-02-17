@@ -28,9 +28,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="query.txt.txt" />
+    <None Include="json\input.json" />
+    <None Include="csv\c.csv" />
+    <None Include="csv\zamestnanci.csv" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="json\input.json" />
+    <Text Include="txt\query.txt.txt" />
+    <Text Include="txt\template.txt" />
+    <Text Include="txt\inserts.txt" />
   </ItemGroup>
 </Project>
