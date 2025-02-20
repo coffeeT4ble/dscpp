@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="csv\c.csv" />
+    <None Include="csv\members.csv" />
     <None Include="csv\zamestnanci.csv" />
     <None Include="json\input.json" />
   </ItemGroup>

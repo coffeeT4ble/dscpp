@@ -31,6 +31,7 @@
     <None Include="json\input.json" />
     <None Include="csv\c.csv" />
     <None Include="csv\zamestnanci.csv" />
+    <None Include="csv\members.csv" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="txt\query.txt.txt" />
