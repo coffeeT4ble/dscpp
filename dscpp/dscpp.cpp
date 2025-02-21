@@ -8,7 +8,7 @@
 std::string db;
 std::string user;
 std::string pwd;
-std::string server = "193.85.203.188";
+std::string server;
 std::string query;
 std::vector<std::string> tables;
 std::vector<std::string> at;
