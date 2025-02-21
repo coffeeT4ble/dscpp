@@ -511,7 +511,7 @@ int main()
 					}
 					else if (c == "help") {
 						std::cout << "this program was originally made to edit a whole database, some features have been altered for user experience simulation, to disable that make the testing boolean false in the source code\nallT - lists all tables and updates the tables vector\nownQ - write a query in the command line [does not work in testing mode]\ntxtQ - allows you to run a sql query in a txt file\ntemplate - creates a database for testing [reccomended for testers]\nattr - lists all attributes in a chosen table\ncsvI - allows csv input\ndelete - deletes a chosen row in a chosen table\nselectAll - selects everything in every table and writes it out in an organised matter\ndropT - drops the chosen tablen\n"
-							<< "However, you are in testing/user mode, you're commands consist of:\nnew - insert new member\ncsvIns - insert data for either Members or Trainers using csv file\ntemplate - create the tables and inserts if not already made using the sql file\ndelete - delete from any table\n selectAll write out everything" << std::endl;
+							<< "However, you are in testing/user mode, you're commands consist of:\nnew - insert new member\ncsvIns - insert data for either Members or Trainers using csv file\ntemplate - create the tables and inserts if not already made using the sql file\ndelete - delete from any table\nselectAll write out everything" << std::endl;
 						break;
 					}
 					else if (c == "exit") {
