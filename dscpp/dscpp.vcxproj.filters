@@ -32,10 +32,12 @@
     <None Include="csv\c.csv" />
     <None Include="csv\zamestnanci.csv" />
     <None Include="csv\members.csv" />
+    <None Include="csv\trainers.csv" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="txt\query.txt.txt" />
     <Text Include="txt\template.txt" />
     <Text Include="txt\inserts.txt" />
+    <Text Include="txt\login.txt" />
   </ItemGroup>
 </Project>

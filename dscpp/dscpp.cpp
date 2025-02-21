@@ -8,41 +8,52 @@
 std::string db;
 std::string user;
 std::string pwd;
-std::string jecnaServer = "193.85.203.188";
+std::string server = "193.85.203.188";
 std::string query;
 std::vector<std::string> tables;
 std::vector<std::string> at;
 std::string tName;
 bool loggedIn = false;
 bool testing = true;
-
-void loginExitCode() {
-	if (db == "0000" || user == "0000" || pwd == "0000") {
-		exit(0);
-	}
-}
+/**
+ * @brief Login to database
+ * @param a txt file with the login details
+ * @return 
+ */
 void connectToDB() {
-	if (!loggedIn) {
-		std::cout << "Enter the database name: ";
-		std::cin >> db;
-		loginExitCode();
-		std::cout << "Enter the username: ";
-		std::cin >> user;
-		loginExitCode();
-		std::cout << "Enter the password: ";
-		std::cin >> pwd;
-		loginExitCode();
+	std::string login[4];
+	std::ifstream file("txt/login.txt");
+	if (!file.is_open()) {
+		std::cerr << "NAH" << std::endl;
+		return;
 	}
+	int i = 0;
+	std::string line;
+	while (std::getline(file, line)) {
+		login[i] = line;
+		i++;
+	}
+	file.close();
+	server = login[0];
+	db = login[1];
+	user = login[2];
+	pwd = login[3];
 }
 
 /*void createTemplateTables() {
 	query.clear();
 	query = "CREATE TABLE Members(id_mem INTEGER PRIMARY KEY, fname_mem NVARCHAR(50) NOT NULL);";
 }*/
+/**
+ * @brief retrieve all table names in the database
+ */
 void getTableNames() {
 	query.clear();
 	query = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES;";
 }
+/**
+ * @brief write own query in the command line 
+ */
 void ownQuery() {
 	query.clear();
 	std::string input;
@@ -51,6 +62,10 @@ void ownQuery() {
 	query = input;
 	std::cout << query;
 }
+/**
+ * @brief write a txt file query
+ * @param filePath
+ */
 void txtToDB(std::string filePath) {
 	query.clear();
 	std::ifstream file(filePath);
@@ -66,6 +81,10 @@ void txtToDB(std::string filePath) {
 	std::cout << "Done, but make sure to check using allT" << std::endl;
 	file.close();
 }
+/**
+ * @brief create a table from a csv file
+ * @param filePath
+ */
 void csvT(std::string filePath) {
 	query.clear();
 	std::ifstream file(filePath);
@@ -106,8 +125,10 @@ void csvT(std::string filePath) {
 		}
 	}
 	query += ");";
-	std::cout << query;
 }
+/**
+ * @brief insert data from a csv file
+ */
 void userCsvInsert() {
 	query.clear();
 	std::string filePath;
@@ -153,11 +174,49 @@ void userCsvInsert() {
 		std::cout << query;
 	}
 	else if (choice == "2") {
+		filePath = "csv/trainers.csv";
+		query = "insert into Trainers(FirstName, LastName, Specialization, Email, PhoneNumber, HireDate) values(";
+		std::ifstream file(filePath);
+		if (!file.is_open()) {
+			std::cerr << "NAH" << std::endl;
+			return;
+		}
+		std::string line;
+		std::vector<std::vector<std::string>> data;
+		while (std::getline(file, line)) {
+			std::stringstream ss(line);
+			std::string attribute;
+			std::vector<std::string> lineData;
+			while (std::getline(ss, attribute, ',')) {
+				lineData.push_back(attribute);
+			}
+			data.push_back(lineData);
+		}
+		for (int i = 0; i < data.size(); i++) {
+			for (int j = 0; j < data[0].size() - 1; j++) {
+				data[i][j] += ", ";
+
+			}
+		}
+		file.close();
+		for (int j = 0; j < data.size(); j++) {
+			for (int i = 0; i < data[0].size(); i++) {
+				query += data[j][i];
+			}
+			query += ")";
+			if (j != data.size() - 1) {
+				query += ", (";
+			}
+		}
 	}
 	else {
 		std::cout << "invalid choice";
 	}
 }
+/**
+ * @brief insert data from a csv file
+ * @param filePath
+ */
 void csvInsert(std::string filePath) {
 	getTableNames();
 	query.clear();
@@ -216,6 +275,9 @@ void csvInsert(std::string filePath) {
 	query += ";";
 	std::cout << query;
 }
+/**
+ * @brief align attributes in table
+ */
 void attrAlign() {
 	std::cout << "If this ends up being empty or seems like it has not been updated, run allT and then try again" << std::endl;
 	std::vector<std::string> a;
@@ -224,14 +286,25 @@ void attrAlign() {
 	std::cin >> tName;
 	query = "SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo." + tName + "')";
 }
+/**
+ * @brief align attributes in table for user testing
+ */
 void userAttr() {
 	query.clear();
 	query = "SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Members')";
 }
+/**
+ * @brief insert data into a table
+ * @param nanodbc::result
+ */
 void insertData(nanodbc::result r) {
 	at.push_back(r.get<std::string>(1));
 	std::cout << r.get<std::string>(1) << std::endl;
 }
+/**
+ * @brief main function
+ * @return 0 when done
+ */
 int main()
 {
 	std::cout << query << std::endl;
@@ -240,7 +313,7 @@ int main()
 		connectToDB();
 		while (c != "exit") {
 			try {
-				nanodbc::connection conn(NANODBC_TEXT("Driver={ODBC Driver 17 for SQL Server}; Server=" + jecnaServer + "; Database=" + db + "; UID=" + user + "; PWD=" + pwd));
+				nanodbc::connection conn(NANODBC_TEXT("Driver={ODBC Driver 17 for SQL Server};Server=" + server + ";Database=" + db +";UID=" + user +";PWD=" + pwd + ";"));
 				if (conn.connected() == 1) {
 					std::cout << "\nconnected\n";
 					loggedIn = true;
@@ -284,7 +357,7 @@ int main()
 						}
 						break;
 					}
-					else if (c == "template" && !testing) {
+					else if (c == "template") {
 						std::string choice;
 						std::cout << "1 for template tables, 2 for template data: ";
 						std::cin >> choice;
@@ -338,7 +411,7 @@ int main()
 								<< res2.get<std::string>(2) << std::endl;
 						}
 					}
-					else if (c == "delete" && !testing) {
+					else if (c == "delete") {
 						getTableNames();
 						nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 						while (res.next()) {
@@ -404,6 +477,7 @@ int main()
 						nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 					}
 					else if (c == "new") {
+						at.clear();
 						std::vector<std::string> input;
 						userAttr();
 						nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
@@ -417,7 +491,7 @@ int main()
 							input.push_back(in);
 						}
 						query.clear();
-						query = "INSERT INTO " + tName + "(";
+						query = "INSERT INTO Members(";
 						for (int i = 1; i < at.size(); i++) {
 							query += at[i];
 							if (i != at.size() - 1) {
@@ -427,17 +501,17 @@ int main()
 								query += ") VALUES (";
 							}
 						}
-						query += "'" + input[0] + "'" + "'" + input[1] + "'" + "'" + input[2] + "'" + input[3] + "'" + input[4] + "'" + input[5] +
-							"'" + input[6] + "');";
-
+						query += "'" + input[0] + "','" + input[1] + "','" + input[2] + "'," + input[3] + ",'" + input[4] + "'," + input[5] + ",'" + input[6] + "');";
+						std::cout << query;
+						res = nanodbc::execute(conn, NANODBC_TEXT(query));
 					}
 					else if (c == "csvIns") {
 						userCsvInsert();
 						nanodbc::result res = nanodbc::execute(conn, NANODBC_TEXT(query));
 					}
 					else if (c == "help") {
-						std::cout << "allT - lists all tables and updates the tables vector\nownQ - write a query in the command line [does not work in testing mode]\ntxtQ - allows you to run a sql query in a txt file\ntemplate - creates a database for testing [reccomended for testers]\nattr - lists all attributes in a chosen table\ncsvI - allows csv input\ndelete - deletes a chosen row in a chosen table\nselectAll - selects everything in every table and writes it out in an organised matter\ndropT - drops the chosen tablen\n"
-							<< "However, you are in testing/user mode, you're commands consist of:\n" << std::endl;
+						std::cout << "this program was originally made to edit a whole database, some features have been altered for user experience simulation, to disable that make the testing boolean false in the source code\nallT - lists all tables and updates the tables vector\nownQ - write a query in the command line [does not work in testing mode]\ntxtQ - allows you to run a sql query in a txt file\ntemplate - creates a database for testing [reccomended for testers]\nattr - lists all attributes in a chosen table\ncsvI - allows csv input\ndelete - deletes a chosen row in a chosen table\nselectAll - selects everything in every table and writes it out in an organised matter\ndropT - drops the chosen tablen\n"
+							<< "However, you are in testing/user mode, you're commands consist of:\nnew - insert new member\ncsvIns - insert data for either Members or Trainers using csv file\ntemplate - create the tables and inserts if not already made using the sql file\ndelete - delete from any table\n selectAll write out everything" << std::endl;
 						break;
 					}
 					else if (c == "exit") {
